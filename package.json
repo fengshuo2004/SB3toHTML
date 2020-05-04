@@ -1,0 +1,23 @@
+{
+  "name": "scratch3-packager",
+  "version": "0.1.0",
+  "main": "main.js",
+  "description": "A electron app that packages Scratch project into HTML",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fengshuo2004/SB3toHTML.git"
+  },
+  "author": "David Feng",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fengshuo2004/SB3toHTML/issues"
+  },
+  "homepage": "https://github.com/fengshuo2004/SB3toHTML#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^8.2.5"
+  }
+}

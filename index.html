@@ -1,28 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>HTMLifier</title>
+    <title>SB3转HTML</title>
     <meta charset="UTF-8">
-    <meta name="description" content="Converts a Scratch project to HTML/JavaScript"/>
+    <meta name="description" content="将一个Scratch项目转换为HTML文件"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <link rel="stylesheet" type="text/css" href="../../sheep3.css">
-    <script src="../../sheep3.js" charset="utf-8"></script>
     <script src="./hacky-file-getter.js" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="toggle.css">
+    <link rel="stylesheet" type="text/css" href="radio.css">
     <style media="screen">
-      :target {
-        animation: flash 3s;
+      @font-face {
+        font-family: '幼圆';
+        src: url('resources/幼圆.ttf')  format('truetype');
       }
-      @keyframes flash {
-        0% {
-          background-color: rgba(255, 255, 0, 0.5);
-        }
-        100% {
-          background-color: transparent;
-        }
+      body {
+        margin:16px;
+        font-family: 幼圆;
+        color: white;
+        background-image: linear-gradient(to bottom right, #6D15A1, #C763E8);
+        background-size: cover;
+        background-repeat: no-repeat;
       }
+      /* ========== Tooltips ========== */
+      u {    
+        border-bottom: 2px dotted white;
+        text-decoration: none;
+      }
+      u:hover {
+        cursor: help;
+      }
+
       #load-no-minify {
-        font-size: 1.2em;
-        cursor: pointer;
+        color: white;
+        padding: 4px 26px;
+        font: 1.2em 幼圆;
+        background-color:	transparent;
+        border: 2px solid white;
+        border-radius: 100px;
+      }
+      #load-no-minify:hover {
+        border: 2px solid transparent;
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+
+      /* ========== Some A U T I S T I C Tweaks ========== */
+      input[type="text"], input[type="number"], textarea {
+        padding: 6px 10px;
+        border-radius: 6px;
+        background-color: rgba(255, 255, 255, 0.2);
+        border: 0px;
+        resize: none;
+      }
+      .seperate {
+        padding: 0px 8px;
+        border-left: 1px solid white;
       }
     </style>
   </head>
@@ -35,72 +66,35 @@
 
     <!-- This HTML file is truly ugly. -->
 
-    <h1>Project HTMLifier</h1>
-    <h3><em>Convert a Scratch project to HTML</em></h3>
-    <p>This packages your Scratch project into a single HTML file that can run on its own in a web browser. The HTML file will be pretty big because it contains the entire Scratch engine and the costume and sound files used in the project.</p>
-    <p>The project will automatically start, and there are no green flag or stop sign buttons. Cloud variables are stored <a href="https://en.wikipedia.org/wiki/Web_storage">on your computer</a><a id="ref-1" href="#note-1"><sup>1</sup></a> and allow strings, so they can be used to store game data.</p>
-    <p><label><input type="radio" name="upload-mode" value="id" checked> Project ID: <input type="number" placeholder="Project ID" value="284516654" id="id"> (the ID of the project on the Scratch website)</label></p>
-    <p><label><input type="radio" name="upload-mode" value="file"> Upload project file: <input type="file" id="file" accept=".sb,.sb2,.sb3"></label></p>
+    <h1>Scratch 3 项目转换器 <span style="float: right;"><object data="Scratchcat2.svg" type="image/svg+xml"></object></span></h1>
+    <h3><em>将一个Scratch项目转换为HTML文件</em></h3>
+    <p>本程序可将您的Scratch项目打包成一个能在浏览器里独立运行的HTML文件。</p>
+    <p>生成的HTML文件会比较大，因为这个文件包含了整个Scratch引擎和项目里的造型和声音素材。</p>
+    <p>转换完的项目会自动运行，所以没有绿旗和停止按钮。</p>
+    <p>云变量会保存在<u title="您在Scratch以外使用cookie还是得遵守隐私法律！">电脑本地</u>且允许存储字符串值，方便用来保存游戏数据。</p>
+    <p><label class="container"><input type="radio" name="upload-mode" value="id" checked><span class="checkmark"></span> 项目ID： <input type="number" placeholder="项目ID" value="284516654" id="id"> （Scratch官网上项目网址最后面的一串数字）</label></p>
+    <p><label class="container"><input type="radio" name="upload-mode" value="file"><span class="checkmark"></span> 上传项目（sb3）文件： <input type="file" id="file" accept=".sb,.sb2,.sb3"></label></p>
     <fieldset>
-      <legend>Options</legend>
-      <p><label for="title">Project name: </label><input type="text" placeholder="Project name" value="Zombie Cube Escape!" id="title"> (the text displayed in the browser tab)</p>
-      <p><label for="username">Username value: </label><input type="text" placeholder="Username" value="griffpatch" id="username"> (the value the username block reports)</p>
-      <p><label><input type="checkbox" id="compatibility" checked> Enable compatibility mode?<a id="ref-2" href="#note-2"><sup>2</sup></a></label></p>
-      <p><label><input type="checkbox" id="turbo"> Enable <a href="https://en.scratch-wiki.info/wiki/Turbo_Mode">turbo mode</a>?</label></p>
-      <p><label><input type="checkbox" id="progress" checked> Load progress indicator?</label></p>
-      <p><label><input type="checkbox" id="fullscreen" checked> Show fullscreen button?</label></p>
-      <p><label><input type="checkbox" id="use-colour"> Use custom variable/list monitor colour: <input type="color" id="monitor-colour" value="#ff8c1a">? (If unchecked, a translucent black will be used.)</label></p>
-      <p><label><input type="checkbox" id="wider"> Is this a project <a href="https://sheeptester.github.io/scratch-gui/16-9/">made with a 16:9 aspect ratio</a>?</label></p>
+      <legend>选项</legend>
+      <p><label for="title">项目名称： </label><input type="text" placeholder="项目名称" value="Zombie Cube Escape!" id="title"> （浏览器窗口标题）</p>
+      <p><label for="username">用户名的取值： </label><input type="text" placeholder="用户名" value="griffpatch" id="username"> （“用户名”积木块的返回值）</p>
+      <table style="border:none">
+        <tr>
+          <td style="padding-right: 8px;"><label class="switch"><input type="checkbox" id="compatibility" checked><span class="slider"></span></label> 启用<u title="像Scratch 2.0版一样强制将项目限速在30FPS以下">兼容模式</u></td>
+          <td class="seperate"><label class="switch"><input type="checkbox" id="turbo"><span class="slider"></span></label> 启用<a href="https://en.scratch-wiki.info/wiki/Turbo_Mode">加速模式</a></td>
+          <td class="seperate"><label class="switch"><input type="checkbox" id="progress" checked><span class="slider"></span></label> 显示加载进度条</td>
+          <td class="seperate"><label class="switch"><input type="checkbox" id="fullscreen" checked><span class="slider"></span></label> 显示全屏按钮</td>
+        </tr>
+      </table>
+      <p><label class="switch"><input type="checkbox" id="use-colour"><span class="slider"></span></label> 自定义变量、链表监视器颜色： <input type="color" id="monitor-colour" value="#ff8c1a"> （如果不选，将默认使用半透明黑色。）</p>
+      <p><label class="switch"><input type="checkbox" id="wider"><span class="slider"></span></label> 本项目使用<a href="https://sheeptester.github.io/scratch-gui/16-9/">16比9宽屏模式</a></label></p>
     </fieldset>
     <p>
-      <button id="load-no-minify">HTMLify</button>
+      <button id="load-no-minify">转换▶</button>
     </p>
-    <textarea id="error" rows="8" cols="40" placeholder="Log" readonly></textarea>
-    <p id="note-1"><a href="#ref-1"><sup>1</sup></a>You may have to deal with privacy laws around cookies outside of Scratch.</p>
-    <p id="note-2"><a href="#ref-2"><sup>2</sup></a>Compatibility mode forces projects to run at 30 FPS, like in Scratch 2.0. Turning this off allows the project to run at a higher framerate (usually 60 FPS, depending on the computer screen's refresh rate).</p>
-    <h2>Update history</h2>
-    <h3>2019-11-23</h3>
-    <ul>
-      <li>A fullscreen button</li>
-      <li>An option to change monitor colours</li>
-    </ul>
-    <h3>2019-10-05</h3>
-    <ul>
-      <li>New ask box</li>
-    </ul>
-    <h3>2019-09-28</h3>
-    <ul>
-      <li>A status text that shows the assets loaded</li>
-      <li>Support the video extension</li>
-      <li>Support draggable sprites</li>
-    </ul>
-    <h3>2019-08-08</h3>
-    <ul>
-      <li>Removed "Scratch" from the name of this utility just in case</li>
-    </ul>
-    <h3>2019-07-27</h3>
-    <ul>
-      <li>Support 16:9 projects</li>
-      <li>Simplify the number of modes for HTMLification</li>
-    </ul>
-    <h3>2019-07-13</h3>
-    <ul>
-      <li>Cloud variables store in localStorage</li>
-    </ul>
-    <h3>2019-06-29</h3>
-    <ul>
-      <li>Upload project file instead of using project ID</li>
-      <li>Toggle compatibility and turbo mode</li>
-    </ul>
-    <h3>2019-03-31</h3>
-    <ul>
-      <li>Variable and list watchers</li>
-    </ul>
-    <h3>2019-02-09</h3>
-    <ul>
-      <li>Project start</li>
-    </ul>
-    <p>Made by <a href="https://scratch.mit.edu/users/Sheep_maker/">Sheep_maker</a>, who used: <a href="https://github.com/LLK/scratch-vm/">scratch-vm</a>, <a href="http://danml.com/download.html">download.js</a>, and their dependencies for this project.</p>
+    <textarea id="error" rows="8" cols="80" placeholder="状态输出" readonly></textarea>
+
+    <p>原作者为 <a href="https://scratch.mit.edu/users/Sheep_maker/">Sheep_maker</a> 本程序使用了 <a href="https://github.com/LLK/scratch-vm/">scratch-vm</a>, <a href="http://danml.com/download.html">download.js</a> 及它们的依赖。 MIT开源许可</p>
     <script type="text/javascript">
 function removePercentSection(str, key) {
   /*
@@ -134,13 +128,13 @@ function downloadAsHTML(projectSrc, {
   log = console.log,
   monitorColour = null
 } = {}) {
-  log('Getting assets...');
+  log('正在拉取资源...');
   return Promise.all([
     // make preface variables
     projectSrc.id
       ? runBenchmark(projectSrc.id, ({complete, total}) => log(complete + '/' + total))
         .then(({assets, projectJSON}) => {
-          log('Assembling assets...');
+          log('正在组装资源...');
           return Promise.all([
             getDataURL(projectJSON).then(data => projectJSON = data),
             ...Object.keys(assets).map(assetId => getDataURL(assets[assetId]).then(data => assets[assetId] = data))
@@ -157,7 +151,7 @@ function downloadAsHTML(projectSrc, {
       : 'https://sheeptester.github.io/scratch-vm/vm.min.js')
       .then(r => r.text())
       .then(vmCode => {
-        log('Scratch engine obtained...');
+        log('成功获得Scratch引擎...');
         // remove dumb </ script>s in comments
         return vmCode.replace('</scr' + 'ipt>', '');
       }),
@@ -169,7 +163,7 @@ function downloadAsHTML(projectSrc, {
       + `DESIRED_USERNAME = ${JSON.stringify(username)},`
       + `COMPAT = ${compatibility.checked}, TURBO = ${turbo.checked};`
       + scripts;
-    log('Done!');
+    log('完成！');
     if (ratio16to9) template = removePercentSection(template, '4-3');
     else template = removePercentSection(template, '16-9');
     if (!progressBar) template = removePercentSection(template, 'loading-progress');
@@ -198,7 +192,7 @@ const useColour = document.getElementById('use-colour');
 const monitorColour = document.getElementById('monitor-colour');
 function getProject() {
   if (document.querySelector('input[name="upload-mode"]:checked').value === 'file') {
-    if (!file.files || !file.files[0]) return Promise.reject(new Error('No file selected'));
+    if (!file.files || !file.files[0]) return Promise.reject(new Error('没有选择的文件'));
     return new Promise(res => {
       const reader = new FileReader();
       reader.onload = () => res({data: reader.result});
