@@ -66,7 +66,7 @@
 
     <!-- This HTML file is truly ugly. -->
 
-    <h1>Scratch 3 项目转换器 <span style="float: right;"><object data="Scratchcat2.svg" type="image/svg+xml"></object></span></h1>
+    <h1>Scratch 3 项目转换器 <span style="float: right;"><object data="resources/Scratchcat2.svg" type="image/svg+xml"></object></span></h1>
     <h3><em>将一个Scratch项目转换为HTML文件</em></h3>
     <p>本程序可将您的Scratch项目打包成一个能在浏览器里独立运行的HTML文件。</p>
     <p>生成的HTML文件会比较大，因为这个文件包含了整个Scratch引擎和项目里的造型和声音素材。</p>
@@ -74,27 +74,26 @@
     <p>云变量会保存在<u title="您在Scratch以外使用cookie还是得遵守隐私法律！">电脑本地</u>且允许存储字符串值，方便用来保存游戏数据。</p>
     <p><label class="container"><input type="radio" name="upload-mode" value="id" checked><span class="checkmark"></span> 项目ID： <input type="number" placeholder="项目ID" value="284516654" id="id"> （Scratch官网上项目网址最后面的一串数字）</label></p>
     <p><label class="container"><input type="radio" name="upload-mode" value="file"><span class="checkmark"></span> 上传项目（sb3）文件： <input type="file" id="file" accept=".sb,.sb2,.sb3"></label></p>
-    <fieldset>
-      <legend>选项</legend>
+    <fieldset style="border: 1px solid white; border-radius: 6px">
+      <legend>&nbsp;&nbsp;选项&nbsp;&nbsp;</legend>
       <p><label for="title">项目名称： </label><input type="text" placeholder="项目名称" value="Zombie Cube Escape!" id="title"> （浏览器窗口标题）</p>
       <p><label for="username">用户名的取值： </label><input type="text" placeholder="用户名" value="griffpatch" id="username"> （“用户名”积木块的返回值）</p>
       <table style="border:none">
         <tr>
-          <td style="padding-right: 8px;"><label class="switch"><input type="checkbox" id="compatibility" checked><span class="slider"></span></label> 启用<u title="像Scratch 2.0版一样强制将项目限速在30FPS以下">兼容模式</u></td>
-          <td class="seperate"><label class="switch"><input type="checkbox" id="turbo"><span class="slider"></span></label> 启用<a href="https://en.scratch-wiki.info/wiki/Turbo_Mode">加速模式</a></td>
+          <td style="padding-right: 8px;"><label class="switch"><input type="checkbox" id="compatibility" checked><span class="slider"></span></label> 启用<u title="像Scratch 2.0一样强制将项目限速在30FPS以下">兼容模式</u></td>
+          <td class="seperate"><label class="switch"><input type="checkbox" id="turbo"><span class="slider"></span></label> 启用<a href="https://en.scratch-wiki.info/wiki/Turbo_Mode" target="_blank">加速模式</a></td>
           <td class="seperate"><label class="switch"><input type="checkbox" id="progress" checked><span class="slider"></span></label> 显示加载进度条</td>
           <td class="seperate"><label class="switch"><input type="checkbox" id="fullscreen" checked><span class="slider"></span></label> 显示全屏按钮</td>
         </tr>
       </table>
       <p><label class="switch"><input type="checkbox" id="use-colour"><span class="slider"></span></label> 自定义变量、链表监视器颜色： <input type="color" id="monitor-colour" value="#ff8c1a"> （如果不选，将默认使用半透明黑色。）</p>
-      <p><label class="switch"><input type="checkbox" id="wider"><span class="slider"></span></label> 本项目使用<a href="https://sheeptester.github.io/scratch-gui/16-9/">16比9宽屏模式</a></label></p>
+      <p><label class="switch"><input type="checkbox" id="wider"><span class="slider"></span></label> 本项目使用<a href="https://sheeptester.github.io/scratch-gui/?width=640&height=360" target="_blank">16比9宽屏模式</a></label></p>
     </fieldset>
     <p>
       <button id="load-no-minify">转换▶</button>
     </p>
     <textarea id="error" rows="8" cols="80" placeholder="状态输出" readonly></textarea>
 
-    <p>原作者为 <a href="https://scratch.mit.edu/users/Sheep_maker/">Sheep_maker</a> 本程序使用了 <a href="https://github.com/LLK/scratch-vm/">scratch-vm</a>, <a href="http://danml.com/download.html">download.js</a> 及它们的依赖。 MIT开源许可</p>
     <script type="text/javascript">
 function removePercentSection(str, key) {
   /*
