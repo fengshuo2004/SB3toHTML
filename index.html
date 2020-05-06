@@ -11,7 +11,7 @@
     <style media="screen">
       @font-face {
         font-family: '幼圆';
-        src: url('resources/幼圆.ttf')  format('truetype');
+        src: url('assets/幼圆.ttf')  format('truetype');
       }
       body {
         margin:16px;
@@ -38,7 +38,7 @@
         border: 2px solid white;
         border-radius: 100px;
       }
-      #load-no-minify:hover {
+      #load-no-minify:hover, #load-no-minify:disabled {
         border: 2px solid transparent;
         background-color: rgba(255, 255, 255, 0.2);
       }
@@ -59,14 +59,12 @@
   </head>
   <body>
     <!-- Everything, probably -->
-    <script src="https://sheeptester.github.io/scratch-vm/vm.min.js"></script>
-
+    <script src="scratch-vm/vm.min.js"></script>
     <script src="./hacky-file-getter.js" charset="utf-8"></script>
-    <script src="./download.js" charset="utf-8"></script>
 
     <!-- This HTML file is truly ugly. -->
 
-    <h1>Scratch 3 项目转换器 <span style="float: right;"><object data="resources/Scratchcat2.svg" type="image/svg+xml"></object></span></h1>
+    <h1>Scratch 3 项目转换器 <span style="float: right;"><object data="assets/Scratchcat2.svg" type="image/svg+xml"></object></span></h1>
     <h3><em>将一个Scratch项目转换为HTML文件</em></h3>
     <p>本程序可将您的Scratch项目打包成一个能在浏览器里独立运行的HTML文件。</p>
     <p>生成的HTML文件会比较大，因为这个文件包含了整个Scratch引擎和项目里的造型和声音素材。</p>
@@ -87,7 +85,7 @@
         </tr>
       </table>
       <p><label class="switch"><input type="checkbox" id="use-colour"><span class="slider"></span></label> 自定义变量、链表监视器颜色： <input type="color" id="monitor-colour" value="#ff8c1a"> （如果不选，将默认使用半透明黑色。）</p>
-      <p><label class="switch"><input type="checkbox" id="wider"><span class="slider"></span></label> 本项目使用<a href="https://sheeptester.github.io/scratch-gui/?width=640&height=360" target="_blank">16比9宽屏模式</a></label></p>
+      <p><label class="switch"><input type="checkbox" id="wider"><span class="slider"></span></label> 本项目是用<a href="https://sheeptester.github.io/scratch-gui/?width=640&height=360" target="_blank">E羊icques</a>的16比9宽屏模式开发的</p>
     </fieldset>
     <p>
       <button id="load-no-minify">转换▶</button>
@@ -95,146 +93,173 @@
     <textarea id="error" rows="8" cols="80" placeholder="状态输出" readonly></textarea>
 
     <script type="text/javascript">
-function removePercentSection(str, key) {
-  /*
-  performs the following on str:
-  % key %
-  this part (and other parts surrounded in a similar fashion) will be removed
-  % /key %
-  returns str with the parts removed
-  */
-  const startKey = `% ${key} %`;
-  const endKey = `% /${key} %`;
-  while (str.includes(startKey) && str.includes(endKey)) {
-    str = str.slice(0, str.indexOf(startKey))
-      + str.slice(str.indexOf(endKey) + endKey.length);
-  }
-  return str;
-}
-function getDataURL(url) {
-  return fetch(url).then(r => r.blob()).then(blob => new Promise(res => {
-    const reader = new FileReader();
-    reader.onload = e => res(e.target.result);
-    reader.readAsDataURL(blob);
-  }));
-}
-function downloadAsHTML(projectSrc, {
-  title = 'Project',
-  username = 'griffpatch',
-  ratio16to9 = false,
-  progressBar = true,
-  fullscreen = true,
-  log = console.log,
-  monitorColour = null
-} = {}) {
-  log('正在拉取资源...');
-  return Promise.all([
-    // make preface variables
-    projectSrc.id
-      ? runBenchmark(projectSrc.id, ({complete, total}) => log(complete + '/' + total))
-        .then(({assets, projectJSON}) => {
-          log('正在组装资源...');
-          return Promise.all([
-            getDataURL(projectJSON).then(data => projectJSON = data),
-            ...Object.keys(assets).map(assetId => getDataURL(assets[assetId]).then(data => assets[assetId] = data))
-          ]).then(() => {
-            return `var SRC = "id", PROJECT_JSON = "${projectJSON}",`
-              + `ASSETS = ${JSON.stringify(assets)},`;
-          });
-        })
-      : Promise.resolve(`var SRC = "file", FILE = "${projectSrc.data}",`),
 
-    // fetch scripts
-    fetch(ratio16to9
-      ? 'https://sheeptester.github.io/scratch-vm/16-9/vm.min.js'
-      : 'https://sheeptester.github.io/scratch-vm/vm.min.js')
-      .then(r => r.text())
-      .then(vmCode => {
-        log('成功获得Scratch引擎...');
-        // remove dumb </ script>s in comments
-        return vmCode.replace('</scr' + 'ipt>', '');
-      }),
+    /* fetch API replaced by NodeJS 'fs' module's readFile method
+    In order to patch the file loading bug.  -David 2020 */
+    const fs = require("fs");
+    /* Importing some electron functionalities */
+    const { remote } = require("electron");
 
-    // fetch template
-    fetch('./template.html').then(r => r.text())
-  ]).then(([preface, scripts, template]) => {
-    scripts = preface
-      + `DESIRED_USERNAME = ${JSON.stringify(username)},`
-      + `COMPAT = ${compatibility.checked}, TURBO = ${turbo.checked};`
-      + scripts;
-    log('完成！');
-    if (ratio16to9) template = removePercentSection(template, '4-3');
-    else template = removePercentSection(template, '16-9');
-    if (!progressBar) template = removePercentSection(template, 'loading-progress');
-    if (!fullscreen) template = removePercentSection(template, 'fullscreen');
-    if (monitorColour) template = template.replace('{COLOUR}', () => monitorColour);
-    else template = removePercentSection(template, 'monitor-colour');
-    return template
-      .replace(/% \/?[a-z0-9-]+ %/g, '')
-      // .replace(/\s*\r?\n\s*/g, '')
-      .replace('{TITLE}', () => title)
-      .replace('{SCRIPTS}', () => scripts);
-  });
-}
-const loadNoMinifyBtn = document.getElementById('load-no-minify');
-const title = document.getElementById('title');
-const id = document.getElementById('id');
-const username = document.getElementById('username');
-const file = document.getElementById('file');
-const error = document.getElementById('error');
-const compatibility = document.getElementById('compatibility');
-const turbo = document.getElementById('turbo');
-const wider = document.getElementById('wider');
-const progressBar = document.getElementById('progress');
-const fullscreen = document.getElementById('fullscreen');
-const useColour = document.getElementById('use-colour');
-const monitorColour = document.getElementById('monitor-colour');
-function getProject() {
-  if (document.querySelector('input[name="upload-mode"]:checked').value === 'file') {
-    if (!file.files || !file.files[0]) return Promise.reject(new Error('没有选择的文件'));
-    return new Promise(res => {
-      const reader = new FileReader();
-      reader.onload = () => res({data: reader.result});
-      reader.readAsDataURL(file.files[0]);
+    // Promise-fy readFile method
+    function readFileAsync(filename) {
+        return new Promise((resolve, reject) => {
+            fs.readFile(filename, "utf-8", (err, buffer) => {
+                if (err) reject(err); else resolve(buffer);
+            });
+        });
+    };
+    // NO FILE DRAG'N'DROPPING ALLOWED - YET!
+    window.addEventListener("dragover", function (e) {
+        e.preventDefault();
+    }, false);
+    window.addEventListener("drop", function (e) {
+        e.preventDefault();
+    }, false);
+  
+    function removePercentSection(str, key) {
+      /*
+      performs the following on str:
+      % key %
+      this part (and other parts surrounded in a similar fashion) will be removed
+      % /key %
+      returns str with the parts removed
+      */
+      const startKey = `% ${key} %`;
+      const endKey = `% /${key} %`;
+      while (str.includes(startKey) && str.includes(endKey)) {
+        str = str.slice(0, str.indexOf(startKey))
+          + str.slice(str.indexOf(endKey) + endKey.length);
+      }
+      return str;
+    }
+    function getDataURL(url) {
+      return fetch(url).then(r => r.blob()).then(blob => new Promise(res => {
+        const reader = new FileReader();
+        reader.onload = e => res(e.target.result);
+        reader.readAsDataURL(blob);
+      }));
+    }
+    function downloadAsHTML(projectSrc, {
+      title = 'Project',
+      username = 'griffpatch',
+      ratio16to9 = false,
+      progressBar = true,
+      fullscreen = true,
+      log = console.log,
+      monitorColour = null
+    } = {}) {
+      log('正在拉取资源...');
+      return Promise.all([
+        // make preface variables
+        projectSrc.id
+          ? runBenchmark(projectSrc.id, ({complete, total}) => log(complete + '/' + total))
+            .then(({assets, projectJSON}) => {
+              log('正在组装资源...');
+              return Promise.all([
+                getDataURL(projectJSON).then(data => projectJSON = data),
+                ...Object.keys(assets).map(assetId => getDataURL(assets[assetId]).then(data => assets[assetId] = data))
+              ]).then(() => {
+                return `var SRC = "id", PROJECT_JSON = "${projectJSON}",`
+                  + `ASSETS = ${JSON.stringify(assets)},`;
+              });
+            })
+          : Promise.resolve(`var SRC = "file", FILE = "${projectSrc.data}",`),
+
+        // fetch scripts
+        readFileAsync(ratio16to9 ? 'scratch-vm/16-9/vm.min.js' : 'scratch-vm/vm.min.js')
+          .then(vmCode => {
+            log('成功获得Scratch引擎...');
+            // console.log(vmCode);
+            // remove dumb script end tags in comments
+            return vmCode.replace('</scr' + 'ipt>', '');
+          }),
+
+        // fetch template
+        readFileAsync('./template.html')
+      ]).then(([preface, scripts, template]) => {
+        scripts = preface
+          + `DESIRED_USERNAME = ${JSON.stringify(username)},`
+          + `COMPAT = ${compatibility.checked}, TURBO = ${turbo.checked};`
+          + scripts;
+        log('完成！');
+        template = removePercentSection(template, 'no-vm');
+        if (ratio16to9) template = removePercentSection(template, '4-3');
+        else template = removePercentSection(template, '16-9');
+        if (!progressBar) template = removePercentSection(template, 'loading-progress');
+        if (!fullscreen) template = removePercentSection(template, 'fullscreen');
+        if (monitorColour) template = template.replace('{COLOUR}', () => monitorColour);
+        else template = removePercentSection(template, 'monitor-colour');
+        return template
+          .replace(/% \/?[a-z0-9-]+ %/g, '')
+          // .replace(/\s*\r?\n\s*/g, '')
+          .replace('{TITLE}', () => title)
+          .replace('{SCRIPTS}', () => scripts);
+      });
+    }
+    const loadNoMinifyBtn = document.getElementById('load-no-minify');
+    const title = document.getElementById('title');
+    const id = document.getElementById('id');
+    const username = document.getElementById('username');
+    const file = document.getElementById('file');
+    const error = document.getElementById('error');
+    const compatibility = document.getElementById('compatibility');
+    const turbo = document.getElementById('turbo');
+    const wider = document.getElementById('wider');
+    const progressBar = document.getElementById('progress');
+    const fullscreen = document.getElementById('fullscreen');
+    const useColour = document.getElementById('use-colour');
+    const monitorColour = document.getElementById('monitor-colour');
+    function getProject() {
+      if (document.querySelector('input[name="upload-mode"]:checked').value === 'file') {
+        if (!file.files || !file.files[0]) return Promise.reject(new Error('没有选择任何文件'));
+        return new Promise(res => {
+          const reader = new FileReader();
+          reader.onload = () => res({data: reader.result});
+          reader.readAsDataURL(file.files[0]);
+        });
+      } else {
+        return Promise.resolve({id: id.value});
+      }
+    }
+    function load() {
+      loadNoMinifyBtn.disabled = true;
+      error.value = '';
+      getProject()
+        .then(src => downloadAsHTML(src, {
+            title: title.value,
+            username: username.value,
+            log: output => {
+                error.value += output + '\n';
+                error.scrollTop = error.scrollHeight;
+              },
+            ratio16to9: wider.checked,
+            progressBar: progressBar.checked,
+            fullscreen: fullscreen.checked,
+            monitorColour: useColour.checked ? monitorColour.value : null
+        }))
+        .then(html => {
+            var filePath = remote.dialog.showSaveDialog(remote.getCurrentWindow(), {
+                title: "将HTML文件保存至...",
+                defaultPath: "project.html"
+            });
+            if (filePath === undefined) { filePath = "./project.html" } // default save under same dir
+            fs.writeFileSync(filePath, html, "utf-8");
+            loadNoMinifyBtn.disabled = false;
+        }).catch(err => {
+               console.log(err);
+              error.value = err.message;
+              loadNoMinifyBtn.disabled = false;
+        });
+    }
+    loadNoMinifyBtn.addEventListener('click', load);
+    file.addEventListener('change', e => {
+          if (file.files[0]) {
+            document.querySelector('input[name="upload-mode"][value="file"]').checked = true;
+        }
     });
-  } else {
-    return Promise.resolve({id: id.value});
-  }
-}
-function load() {
-  loadNoMinifyBtn.disabled = true;
-  error.value = '';
-  getProject()
-    .then(src => downloadAsHTML(src, {
-      title: title.value,
-      username: username.value,
-      log: output => {
-        error.value += output + '\n';
-        error.scrollTop = error.scrollHeight;
-      },
-      ratio16to9: wider.checked,
-      progressBar: progressBar.checked,
-      fullscreen: fullscreen.checked,
-      monitorColour: useColour.checked ? monitorColour.value : null
-    }))
-    .then(html => {
-      download(html, 'project.html', 'text/html');
-      loadNoMinifyBtn.disabled = false;
-    }).catch(err => {
-      console.log(err);
-      error.value = err.message;
-      loadNoMinifyBtn.disabled = false;
+    monitorColour.addEventListener('change', e => {
+          useColour.checked = true;
     });
-}
-loadNoMinifyBtn.addEventListener('click', load);
-file.addEventListener('change', e => {
-  if (file.files[0]) {
-    document.querySelector('input[name="upload-mode"][value="file"]').checked = true;
-  }
-});
-monitorColour.addEventListener('change', e => {
-  useColour.checked = true;
-});
     </script>
   </body>
 </html>
