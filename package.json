@@ -1,10 +1,12 @@
 {
   "name": "scratch3-packager",
-  "version": "0.2.0",
+  "version": "0.3.2",
   "main": "main.js",
-  "description": "A electron app that packages Scratch project into HTML",
+  "description": "An electron app that packages Scratch project into HTML",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
   },
   "repository": {
     "type": "git",
@@ -19,6 +21,18 @@
   "dependencies": {},
   "devDependencies": {
     "electron": "^8.2.5",
-    "electron-packager": "^14.2.1"
+    "electron-builder": "^22.6.0"
+  },
+  "build": {
+    "appId": "com.pixelworld.sbconv",
+    "mac": {
+      "category": "public.app-category.utilities"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "language": 2052
+    }
   }
 }

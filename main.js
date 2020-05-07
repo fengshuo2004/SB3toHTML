@@ -51,6 +51,12 @@ const template = [
                 click() {
                     electron.shell.openExternal("https://github.com/fengshuo2004/SB3toHTML/wiki");
                 }
+            },
+            {
+                label: "提交错误报告...",
+                click() {
+                    electron.shell.openExternal("https://github.com/fengshuo2004/SB3toHTML/issues/new");
+                }
             }
         ]
     },
@@ -72,13 +78,13 @@ const template = [
             {
                 label: "Electron框架...",
                 click() {
-                    electron.dialog.showMessageBox(mainWindow, { type: "info", message: aboutElectron, icon: "assets/electron.ico" });
+                    electron.dialog.showMessageBox(mainWindow, { type: "info", message: aboutElectron, icon: "resources/app.asar/assets/electron.png" });
                 }
             },
             {
                 label: "MIT开源软件许可证...",
                 click() {
-                    electron.dialog.showMessageBox(mainWindow, { type: "info", message: license, icon: "assets/icon.ico"});
+                    electron.dialog.showMessageBox(mainWindow, { type: "info", message: license, icon: "resources/app.asar/assets/icon.png"});
                 }
             }
         ]
@@ -100,6 +106,8 @@ if (process.platform === 'darwin') {
     });
 }
 
+// Allow Win10 Notifications to work, although we don't use it anyway
+_app.setAppUserModelId("com.pixelworld.sbconv");
 
 // 当所有窗口被关闭了，退出。
 _app.on('window-all-closed', function () {
@@ -116,11 +124,14 @@ _app.on('ready', function () {
     const appMenu = _Menu.buildFromTemplate(template);
     _Menu.setApplicationMenu(appMenu);
     // 创建浏览器窗口。
-    mainWindow = new _BrowserWindow({ width: 750, height: 890 , icon:"assets/icon.ico"});
+    mainWindow = new _BrowserWindow(
+        { width: 600, height: 710, icon: "assets/icon.png", 
+        webPreferences: {nodeIntegration: true, zoomFactor: 0.8}}
+    );
 
     // 加载应用的 index.html
     mainWindow.loadURL('file://' + __dirname + '/index.html');
-    mainWindow.openDevTools();
+    // mainWindow.openDevTools();
     // 当 window 被关闭，这个事件会被发出
     mainWindow.on('closed', function () {
         // 取消引用 window 对象，如果你的应用支持多窗口的话，

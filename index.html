@@ -64,7 +64,7 @@
 
     <!-- This HTML file is truly ugly. -->
 
-    <h1>Scratch 3 项目转换器 <span style="float: right;"><object data="assets/Scratchcat2.svg" type="image/svg+xml"></object></span></h1>
+    <h1>Scratch 3 项目转换器 <img style="float: right;" src="assets/Scratchcat2.svg" alt="the scartch mascot cat"></img></h1>
     <h3><em>将一个Scratch项目转换为HTML文件</em></h3>
     <p>本程序可将您的Scratch项目打包成一个能在浏览器里独立运行的HTML文件。</p>
     <p>生成的HTML文件会比较大，因为这个文件包含了整个Scratch引擎和项目里的造型和声音素材。</p>
@@ -166,7 +166,7 @@
           : Promise.resolve(`var SRC = "file", FILE = "${projectSrc.data}",`),
 
         // fetch scripts
-        readFileAsync(ratio16to9 ? 'scratch-vm/16-9/vm.min.js' : 'scratch-vm/vm.min.js')
+        readFileAsync(ratio16to9 ? 'resources/app.asar/scratch-vm/16-9/vm.min.js' : 'resources/app.asar/scratch-vm/vm.min.js')
           .then(vmCode => {
             log('成功获得Scratch引擎...');
             // console.log(vmCode);
@@ -175,7 +175,7 @@
           }),
 
         // fetch template
-        readFileAsync('./template.html')
+        readFileAsync('resources/app.asar/template.html')
       ]).then(([preface, scripts, template]) => {
         scripts = preface
           + `DESIRED_USERNAME = ${JSON.stringify(username)},`
@@ -238,13 +238,15 @@
             monitorColour: useColour.checked ? monitorColour.value : null
         }))
         .then(html => {
-            var filePath = remote.dialog.showSaveDialog(remote.getCurrentWindow(), {
+            remote.dialog.showSaveDialog(remote.getCurrentWindow(), {
                 title: "将HTML文件保存至...",
                 defaultPath: "project.html"
+            }).then(res => {
+                var fPath = res.filePath;
+                if (fPath === undefined) { fPath = "./project.html" } // default save in same dir, in case user chose nothing
+                fs.writeFileSync(fPath, html, "utf-8");
+                loadNoMinifyBtn.disabled = false;
             });
-            if (filePath === undefined) { filePath = "./project.html" } // default save under same dir
-            fs.writeFileSync(filePath, html, "utf-8");
-            loadNoMinifyBtn.disabled = false;
         }).catch(err => {
                console.log(err);
               error.value = err.message;
