@@ -1,2 +1,5 @@
 /node_modules
 /dist
+/wrapper/nwjs/**/*.*
+!/wrapper/nwjs/package.json
+!/wrapper/nwjs/cat.png

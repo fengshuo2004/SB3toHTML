@@ -1,0 +1,8 @@
+{
+    "name": "scratch-project",
+    "main": "project.html",
+    "window":
+    {
+        "icon":"cat.png"
+    }
+}
