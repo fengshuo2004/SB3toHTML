@@ -2,16 +2,22 @@ import tkinter as tk
 from tkinter import filedialog
 
 def browse():
-    filename = filedialog.askopenfilename(filetypes=[('超文本标记语言文件', '*.html')])
+    filename = filedialog.askopenfilename(title="选择一个HTML文件", filetypes=[('超文本标记语言文件', '*.html')])
     if (filename != ""): # if user DOESN'T just close dialog
         htmlField.delete(0, tk.END)
         htmlField.insert(0, filename)
 
 def browseIcon():
-    filename = filedialog.askopenfilename(filetypes=[('ICO图标文件', '*.ico')])
+    filename = filedialog.askopenfilename(title="选择一个ICO文件", filetypes=[('ICO图标文件', '*.ico')])
     if (filename != ""):  # if user DOESN'T just close dialog
         iconField.delete(0, tk.END)
         iconField.insert(0, filename)
+
+def browseSave():
+    filename = filedialog.asksaveasfilename(title="将输出保存另存为", filetypes=[('EXE执行档', '*.exe')])
+    if (filename != ""):  # if user DOESN'T just close dialog
+        saveField.delete(0, tk.END)
+        saveField.insert(0, filename)
 
 # The window object
 mainWindow = tk.Tk()
@@ -20,7 +26,7 @@ mainWindow.title("继续打包至EXE...")
 # Window size
 mainWindow.geometry("500x300")
 # Window icon
-mainWindow.wm_iconbitmap('../build/icon.ico')
+mainWindow.wm_iconbitmap('../build/pyicon.ico')
 # Menu bar
 menuBar = tk.Menu(mainWindow)
 helpMenu = tk.Menu(menuBar, tearoff=0)
@@ -44,7 +50,7 @@ tk.Label(mainWindow,
 # Seperator
 tk.Label(mainWindow,
          text="自 >>>>>",
-         bg="#49BE5C",
+         bg="#59CE6C",
          fg="white",
          font=("",10,"bold")).grid(row=2, columnspan=3, sticky=tk.W)
 
@@ -71,4 +77,23 @@ iconField.insert(tk.END, ".\\default.ico")
 
 tk.Button(mainWindow, text="浏览", width=6, command=browseIcon).grid(row=4, column=2)
 
+# Seperator
+tk.Label(mainWindow,
+         text=">>>>> 至",
+         bg="#59CE6C",
+         fg="white",
+         font=("", 10, "bold")).grid(row=5, columnspan=3, sticky=tk.W)
+
+# select icon file row
+tk.Label(mainWindow,
+         text="EXE输出文件路径: ",
+         bg="#49BE5C",
+         fg="white").grid(row=6, column=0)
+
+saveField = tk.Entry(mainWindow, width=36)
+saveField.grid(row=6, column=1, padx=5)
+
+tk.Button(mainWindow, text="浏览", width=6, command=browseSave).grid(row=6, column=2)
+
+# show the window
 mainWindow.mainloop()

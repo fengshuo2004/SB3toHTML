@@ -1,5 +1,6 @@
 /node_modules
 /dist
+/wrapper/makesfx.exe
 /wrapper/nwjs/**/*.*
 !/wrapper/nwjs/package.json
 !/wrapper/nwjs/cat.png

@@ -3,27 +3,28 @@
     Scratch 3 Project to EXE Converter
 .DESCRIPTION
     PS script that packs html file to a standalone executable using nw.js and makesfx
-.PARAMETER h
+.PARAMETER htmlPath
     path to the html file, produced by SB3toHTML converter
-.PARAMETER i
-    path to the ico icon file, to be applied on the executable
-.PARAMETER o
+.PARAMETER iconPath
+    path to the .ICO icon file, to be applied on the executable
+.PARAMETER outPath
     output directory and filename
 #>
 
 param (
-    [Parameter(Mandatory = $true)][string] $h,
-    [Parameter(Mandatory = $true)][string] $i,
-    [Parameter(Mandatory = $true)][string] $o
+    [Parameter(Mandatory = $true, position=0)]
+    [string]
+    $htmlPath,
+    [Parameter(Mandatory = $true, position=1)]
+    [string]
+    $iconPath,
+    [Parameter(Mandatory = $true, position=2)]
+    [string]
+    $outPath
 )
 
 # Make sure we fail fast
 $ErrorActionPreference = "Stop"
-
-# Arg -> Human intuitive variable
-$htmlPath = $h
-$iconPath = $i
-$outPath = $o
 
 Write-Output "> Source file location: $htmlPath"
 Write-Output "> Icon file location: $iconPath"
