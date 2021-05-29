@@ -14,7 +14,7 @@ function UnzipFile([String]$sourceFile, [String]$targetFolder)
     }
     $shellApp = New-Object -ComObject Shell.Application
     $files = $shellApp.NameSpace($sourceFile).Items()
-    $files|%{if (Test-Path ("$targetFolder/{0}" -f  $_.name )){Remove-Item ("$targetFolder/{0}" -f  $_.name) -Force -Recurse}}
+    $files|ForEach-Object{if (Test-Path ("$targetFolder/{0}" -f  $_.name )){Remove-Item ("$targetFolder/{0}" -f  $_.name) -Force -Recurse}}
     $shellApp.NameSpace($targetFolder).CopyHere($files, 1556)
 }
 
@@ -34,9 +34,9 @@ function DownloadFile([String]$url, [String]$targetFile){
         $targetStream.Write($buffer, 0, $count)
         $count = $responseStream.Read($buffer,0,$buffer.length)
         $downloadedBytes = $downloadedBytes + $count
-        Write-Progress -activity "Downloading file '$($url.split('/') | Select -Last 1)'" -status "Downloaded ($([System.Math]::Floor($downloadedBytes/1024))KB of $($totalLength)KB): " -PercentComplete ((([System.Math]::Floor($downloadedBytes/1024)) / $totalLength)  * 100)
+        Write-Progress -activity "Downloading file '$($url.split('/') | Select-Object -Last 1)'" -status "Downloaded ($([System.Math]::Floor($downloadedBytes/1024))KB of $($totalLength)KB): " -PercentComplete ((([System.Math]::Floor($downloadedBytes/1024)) / $totalLength)  * 100)
     }
-    Write-Progress -activity "Finished downloading file '$($url.split('/') | Select -Last 1)'"
+    Write-Progress -activity "Finished downloading file '$($url.split('/') | Select-Object -Last 1)'"
     $targetStream.Flush()
     $targetStream.Close()
     $targetStream.Dispose()

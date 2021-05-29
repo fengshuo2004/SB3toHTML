@@ -16,7 +16,7 @@ UnzipFile -sourceFile "$env:temp\nwjs.zip" -targetFolder $env:temp
 Write-Host "Done." -ForegroundColor green
 
 Write-Output "[######____] 3 Moving files into final location..."
-Get-ChildItem -Path "$env:temp\nwjs-v0.46.0-win-x64" | % {
+Get-ChildItem -Path "$env:temp\nwjs-v0.46.0-win-x64" | ForEach-Object {
     Copy-Item $_.fullname -Destination "$PSScriptRoot\nwjs" -Recurse -Force
 }
 Write-Host "Done." -ForegroundColor green

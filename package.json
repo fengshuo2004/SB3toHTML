@@ -21,11 +21,13 @@
   "dependencies": {},
   "devDependencies": {
     "electron": "^8.2.5",
-    "electron-builder": "^22.6.0"
+    "electron-builder": "^22.11.5"
   },
   "build": {
     "appId": "com.pixelworld.sbconv",
-    "files": ["!wrapper${/*}"],
+    "files": [
+      "!wrapper${/*}"
+    ],
     "mac": {
       "category": "public.app-category.utilities"
     },
